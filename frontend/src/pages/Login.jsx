@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../auth/AuthProvider';
 import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { loginWithCredentials } = useAuth();
   const navigate = useNavigate();
   
   const [username, setUsername] = useState('');
@@ -17,7 +17,7 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      const loggedUser = await login(username, password);
+      const loggedUser = await loginWithCredentials(username, password);
       if (loggedUser.role === 'EMPLOYER') {
         navigate('/employer');
       } else {
