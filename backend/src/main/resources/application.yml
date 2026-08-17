@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: skillhub-monolith
+  datasource:
+    url: jdbc:postgresql://localhost:5432/skillhub
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Points to the auth-service JWK endpoint to validate JWT signatures
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
+          issuer-uri: http://localhost:9000
+
+logging:
+  level:
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+

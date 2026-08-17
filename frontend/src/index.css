@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #121319;
+    color: #e1e2e5;
+  }
+}
+
+/* Custom premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #121319;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b2d35;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4a6cf7;
+}
+
+/* Gradient background for hero */
+.hero-gradient {
+  background: radial-gradient(circle at top right, rgba(74, 108, 247, 0.12), transparent 45%),
+              radial-gradient(circle at bottom left, rgba(51, 82, 219, 0.05), transparent 45%);
+}
+
+/* Premium glassmorphism utility */
+.glass-panel {
+  background: rgba(43, 45, 53, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}

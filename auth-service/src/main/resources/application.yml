@@ -1,0 +1,39 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    # Shares the same skillhub PostgreSQL DB as the monolith (same users table)
+    url: jdbc:postgresql://localhost:5432/skillhub
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none  # Monolith already manages schema via update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  session:
+    store-type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+
+logging:
+  level:
+    org.springframework.security: INFO
+
+

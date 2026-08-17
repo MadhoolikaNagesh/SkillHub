@@ -1,0 +1,65 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cloud:
+    gateway:
+      routes:
+        - id: job-service
+          uri: lb://job-service
+          predicates:
+            - Path=/api/jobs/**, /api/applications/**
+          filters:
+            # 1. Circuit Breaker config
+            - name: CircuitBreaker
+              args:
+                name: jobServiceCircuitBreaker
+                fallbackUri: forward:/fallback/jobs
+            # 2. Redis Rate Limiter config
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5     # 5 requests per second allowed
+                redis-rate-limiter.burstCapacity: 10     # Max burst capacity 10 requests
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: userServiceCircuitBreaker
+                fallbackUri: forward:/fallback/users
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders: "*"
+            allowCredentials: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+

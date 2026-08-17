@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - SkillHub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f5ff',
+                            100: '#e1ebff',
+                            200: '#c3d7ff',
+                            300: '#94b8ff',
+                            400: '#5e91ff',
+                            500: '#3662ff',
+                            600: '#1f3eff',
+                            700: '#142aff',
+                            800: '#1022d4',
+                            900: '#1524a8',
+                            950: '#070b4f',
+                        },
+                        dark: {
+                            50: '#f3f4f6',
+                            100: '#e5e7eb',
+                            200: '#c5c7d0',
+                            300: '#9ca3af',
+                            400: '#6b7280',
+                            500: '#4b5563',
+                            600: '#374151',
+                            700: '#1f2937',
+                            800: '#111827',
+                            900: '#090d16',
+                            950: '#05070c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #05070c;
+            overflow: hidden;
+        }
+        .mesh-gradient-1 {
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(54, 98, 255, 0.15) 0%, rgba(54, 98, 255, 0) 70%);
+            filter: blur(100px);
+            pointer-events: none;
+        }
+        .mesh-gradient-2 {
+            position: absolute;
+            bottom: -20%;
+            right: -20%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0) 70%);
+            filter: blur(100px);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="font-sans flex min-h-screen items-center justify-center relative p-4">
+
+    <!-- Decorative backgrounds -->
+    <div class="mesh-gradient-1"></div>
+    <div class="mesh-gradient-2"></div>
+
+    <div class="w-full max-w-md bg-dark-900/60 border border-dark-800/80 rounded-2xl p-8 backdrop-blur-xl shadow-2xl relative z-10">
+        
+        <!-- Logo and Heading -->
+        <div class="flex flex-col items-center mb-8">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 to-primary-400 text-white shadow-lg shadow-primary-500/20 mb-3">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-1.5">
+                Skill<span class="bg-gradient-to-r from-primary-400 to-primary-200 bg-clip-text text-transparent">Hub</span> Secure Sign In
+            </h1>
+            <p class="text-sm text-dark-300 mt-2">Welcome back! Access your workspace.</p>
+        </div>
+
+        <!-- Notification Banners -->
+        <div th:if="${param.error}" class="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400 flex items-center gap-2">
+            <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>Invalid username or password. Please try again.</span>
+        </div>
+
+        <div th:if="${param.logout}" class="mb-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-400 flex items-center gap-2">
+            <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>You have been signed out successfully.</span>
+        </div>
+
+        <!-- Login Form -->
+        <form th:action="@{/login}" method="post" class="space-y-5">
+            <div>
+                <label for="username" class="block text-sm font-semibold text-dark-200 mb-1.5">Username / Email</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-dark-500">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </span>
+                    <input type="text" id="username" name="username" required autocomplete="username"
+                           placeholder="Enter your username"
+                           class="block w-full rounded-xl border border-dark-800 bg-dark-950 pl-11 pr-4 py-3 text-sm text-white placeholder-dark-500 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/30 transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-semibold text-dark-200 mb-1.5">Password</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-dark-500">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </span>
+                    <input type="password" id="password" name="password" required autocomplete="current-password"
+                           placeholder="••••••••"
+                           class="block w-full rounded-xl border border-dark-800 bg-dark-950 pl-11 pr-4 py-3 text-sm text-white placeholder-dark-500 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/30 transition-all">
+                </div>
+            </div>
+
+            <button type="submit" 
+                    class="w-full rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 py-3 text-sm font-bold text-white shadow-lg shadow-primary-600/10 hover:shadow-primary-600/25 active:scale-[0.98] transition-all duration-150 mt-2">
+                Sign In
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-xs text-dark-400 border-t border-dark-800/80 pt-5">
+            Having trouble signing in? Please contact your platform administrator.
+        </div>
+
+    </div>
+
+</body>
+</html>
