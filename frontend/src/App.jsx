@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import Navbar from './components/Navbar';
+import LoginModal from './components/LoginModal';
 import Home from './pages/Home';
 import Callback from './pages/Callback';
 import EmployerDashboard from './pages/EmployerDashboard';
@@ -34,6 +35,7 @@ function MainApp() {
   return (
     <div className="min-h-screen bg-dark-950 font-sans text-dark-100 flex flex-col">
       <Navbar />
+      <LoginModal />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />

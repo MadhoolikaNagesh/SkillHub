@@ -1,13 +1,16 @@
 package com.skillhub.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginRequest {
+
     @NotBlank(message = "Username/Email is required")
-    @Email(message = "Username must be a valid email")
     private String username;
 
     @NotBlank(message = "Password is required")

@@ -11,71 +11,123 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
-    // On mount, check if a user session already exists in sessionStorage
+    // 1. Check native session in sessionStorage
+    const nativeUser = sessionStorage.getItem('skillhub_user');
+    const nativeToken = sessionStorage.getItem('skillhub_token');
+
+    if (nativeUser && nativeToken) {
+      try {
+        setUser(JSON.parse(nativeUser));
+        setLoading(false);
+        return;
+      } catch (e) {
+        sessionStorage.removeItem('skillhub_user');
+        sessionStorage.removeItem('skillhub_token');
+      }
+    }
+
+    // 2. Fallback check for OIDC session
     userManager.getUser().then((oidcUser) => {
       if (oidcUser && !oidcUser.expired) {
-        setUser(oidcUser);
+        setUser({
+          id: oidcUser.profile.userId,
+          username: oidcUser.profile.sub,
+          fullName: oidcUser.profile.fullName,
+          role: oidcUser.profile.role,
+          accessToken: oidcUser.access_token,
+        });
       }
       setLoading(false);
     });
 
-    // Listen for events from the UserManager
-    const onUserLoaded = (oidcUser) => setUser(oidcUser);
-    const onUserUnloaded = () => setUser(null);
-    const onAccessTokenExpired = () => {
-      setUser(null);
+    const onUserLoaded = (oidcUser) => {
+      setUser({
+        id: oidcUser.profile.userId,
+        username: oidcUser.profile.sub,
+        fullName: oidcUser.profile.fullName,
+        role: oidcUser.profile.role,
+        accessToken: oidcUser.access_token,
+      });
     };
+    const onUserUnloaded = () => setUser(null);
 
     userManager.events.addUserLoaded(onUserLoaded);
     userManager.events.addUserUnloaded(onUserUnloaded);
-    userManager.events.addAccessTokenExpired(onAccessTokenExpired);
 
     return () => {
       userManager.events.removeUserLoaded(onUserLoaded);
       userManager.events.removeUserUnloaded(onUserUnloaded);
-      userManager.events.removeAccessTokenExpired(onAccessTokenExpired);
     };
   }, []);
 
-  /**
-   * Redirects the browser to the Spring Authorization Server's /oauth2/authorize.
-   * The Authorization Server will show its login form, then redirect back to /callback.
-   */
+  const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
+  const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
+
+  const loginWithCredentials = useCallback(async (username, password) => {
+    // Dynamically import api to prevent circular dependencies
+    const api = (await import('../utils/api')).default;
+    const response = await api.post('/api/auth/login', { username, password });
+    const authData = response.data; // { token, userId, username, fullName, role }
+
+    const profileObj = {
+      id: authData.userId,
+      username: authData.username,
+      fullName: authData.fullName,
+      role: authData.role,
+      accessToken: authData.token,
+    };
+
+    sessionStorage.setItem('skillhub_token', authData.token);
+    sessionStorage.setItem('skillhub_user', JSON.stringify(profileObj));
+    setUser(profileObj);
+    setIsLoginModalOpen(false);
+    return profileObj;
+  }, []);
+
   const login = useCallback(() => {
-    userManager.signinRedirect();
-  }, []);
+    openLoginModal();
+  }, [openLoginModal]);
 
-  /**
-   * Clears local token storage and redirects to the Authorization Server's logout endpoint.
-   */
   const logout = useCallback(async () => {
-    await userManager.signoutRedirect();
+    sessionStorage.removeItem('skillhub_token');
+    sessionStorage.removeItem('skillhub_user');
+    try {
+      await userManager.removeUser();
+    } catch (e) {}
+    setUser(null);
+    window.location.href = '/';
   }, []);
 
-  /**
-   * Called from the /callback page after the browser returns from the auth server.
-   * Completes the Authorization Code + PKCE exchange to get tokens.
-   */
   const handleCallback = useCallback(async () => {
     const oidcUser = await userManager.signinRedirectCallback();
-    setUser(oidcUser);
-    return oidcUser;
+    const profileObj = {
+      id: oidcUser.profile.userId,
+      username: oidcUser.profile.sub,
+      fullName: oidcUser.profile.fullName,
+      role: oidcUser.profile.role,
+      accessToken: oidcUser.access_token,
+    };
+    setUser(profileObj);
+    return profileObj;
   }, []);
 
-  // Derive a plain user profile object from the OIDC token claims
-  // so the rest of the app doesn't need to know about oidc-client-ts internals
-  const profile = user ? {
-    id: user.profile.userId,
-    username: user.profile.sub,
-    fullName: user.profile.fullName,
-    role: user.profile.role,
-    accessToken: user.access_token,
-  } : null;
-
   return (
-    <AuthContext.Provider value={{ user: profile, oidcUser: user, loading, login, logout, handleCallback }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        loginWithCredentials,
+        isLoginModalOpen,
+        openLoginModal,
+        closeLoginModal,
+        handleCallback,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

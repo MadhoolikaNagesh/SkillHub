@@ -1,22 +1,5 @@
 services:
-  # 1. Auth Service (Spring Authorization Server)
-  - type: web
-    name: skillhub-auth-service
-    env: docker
-    dockerfilePath: ./auth-service/Dockerfile
-    dockerContext: ./auth-service
-    plan: free
-    envVars:
-      - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: skillhub-db
-          property: jdbcConnectionString
-      - key: EUREKA_CLIENT_ENABLED
-        value: "false"
-      - key: AUTH_SERVER_ISSUER
-        value: https://skillhub-auth-service.onrender.com
-
-  # 2. Main Web App (Embedded React SPA + Spring Boot)
+  # SkillHub Unified Single Web App (React SPA + Spring Boot Monolith)
   - type: web
     name: skillhub-app
     env: docker
@@ -28,10 +11,6 @@ services:
         fromDatabase:
           name: skillhub-db
           property: jdbcConnectionString
-      - key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
-        value: https://skillhub-auth-service.onrender.com/oauth2/jwks
-      - key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
-        value: https://skillhub-auth-service.onrender.com
 
 databases:
   - name: skillhub-db

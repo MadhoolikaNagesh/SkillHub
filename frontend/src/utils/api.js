@@ -24,6 +24,11 @@ const api = axios.create({
  * The token is fetched fresh from the UserManager's session storage.
  */
 api.interceptors.request.use(async (config) => {
+  const nativeToken = typeof window !== 'undefined' ? sessionStorage.getItem('skillhub_token') : null;
+  if (nativeToken) {
+    config.headers['Authorization'] = `Bearer ${nativeToken}`;
+    return config;
+  }
   const oidcUser = await userManager.getUser();
   if (oidcUser && !oidcUser.expired && oidcUser.access_token) {
     config.headers['Authorization'] = `Bearer ${oidcUser.access_token}`;

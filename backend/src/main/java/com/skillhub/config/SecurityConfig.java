@@ -1,5 +1,6 @@
 package com.skillhub.config;
 
+import com.skillhub.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,9 +29,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final JwtService jwtService;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withSecretKey(jwtService.getSecretKey()).build();
     }
 
     @Bean
@@ -46,6 +54,7 @@ public class SecurityConfig {
                 // Public API endpoints
                 .requestMatchers("/api/jobs/public/**").permitAll()
                 .requestMatchers("/api/users/register").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
                 // Admin API endpoints
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // Non-API SPA routes (e.g. /candidate, /employer, /admin UI routes)
@@ -53,9 +62,12 @@ public class SecurityConfig {
                 // All other API endpoints require authentication
                 .anyRequest().authenticated()
             )
-            // Configure as OAuth2 Resource Server validating JWTs from auth-service
+            // Configure as OAuth2 Resource Server validating JWTs with native JwtDecoder
             .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .jwt(jwt -> jwt
+                    .decoder(jwtDecoder())
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
             );
 
         return http.build();
@@ -79,10 +91,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*", "https://*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
-        // No credentials (cookies) needed — we use Bearer tokens
         config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
