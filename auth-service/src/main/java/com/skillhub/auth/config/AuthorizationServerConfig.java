@@ -27,9 +27,9 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.security.KeyPair;
-
-
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -77,8 +77,10 @@ public class AuthorizationServerConfig {
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
             .redirectUri("http://localhost:5173/callback")
             .redirectUri("http://localhost:8080/callback")
+            .redirectUri("https://skillhub-app.onrender.com/callback")
             .postLogoutRedirectUri("http://localhost:5173")
             .postLogoutRedirectUri("http://localhost:8080")
+            .postLogoutRedirectUri("https://skillhub-app.onrender.com")
             .scope(OidcScopes.OPENID)
             .scope(OidcScopes.PROFILE)
             .scope("read")
@@ -152,9 +154,10 @@ public class AuthorizationServerConfig {
      * Must match the jwk-set-uri base URL configured in the monolith's application.yml.
      */
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
+    public AuthorizationServerSettings authorizationServerSettings(
+            @Value("${AUTH_SERVER_ISSUER:http://localhost:9000}") String issuer) {
         return AuthorizationServerSettings.builder()
-            .issuer("http://localhost:9000")
+            .issuer(issuer)
             .build();
     }
 }

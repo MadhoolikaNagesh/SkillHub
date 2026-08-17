@@ -13,6 +13,8 @@ services:
           property: jdbcConnectionString
       - key: EUREKA_CLIENT_ENABLED
         value: "false"
+      - key: AUTH_SERVER_ISSUER
+        value: https://skillhub-auth-service.onrender.com
 
   # 2. Main Web App (Embedded React SPA + Spring Boot)
   - type: web
