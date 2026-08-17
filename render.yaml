@@ -10,7 +10,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: skillhub-db
-          property: connectionString
+          property: jdbcConnectionString
       - key: EUREKA_CLIENT_ENABLED
         value: "false"
 
@@ -25,7 +25,7 @@ services:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: skillhub-db
-          property: connectionString
+          property: jdbcConnectionString
       - key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
         value: https://skillhub-auth-service.onrender.com/oauth2/jwks
       - key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
