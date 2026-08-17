@@ -34,19 +34,18 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         log.info("[AUTH] Processing direct login request for user: {}", request.getUsername());
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+
+        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.warn("[AUTH] Invalid credentials attempt for user: {}", request.getUsername());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid email or password"));
+        }
 
         if (!user.isEnabled()) {
             log.warn("[AUTH] Login attempt for disabled user: {}", request.getUsername());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "Your account has been deactivated. Please contact support."));
-        }
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.warn("[AUTH] Invalid password attempt for user: {}", request.getUsername());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid email or password"));
         }
 
         String token = jwtService.generateToken(user);
