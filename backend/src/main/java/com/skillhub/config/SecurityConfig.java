@@ -41,10 +41,16 @@ public class SecurityConfig {
             // Fully stateless — no sessions, JWTs only
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
+                // Static resources & SPA routes
+                .requestMatchers("/", "/index.html", "/favicon.ico", "/assets/**", "/*.js", "/*.css", "/*.png", "/*.svg", "/*.ico").permitAll()
+                // Public API endpoints
                 .requestMatchers("/api/jobs/public/**").permitAll()
                 .requestMatchers("/api/users/register").permitAll()
-                // Everything else requires a valid JWT
+                // Admin API endpoints
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                // Non-API SPA routes (e.g. /candidate, /employer, /admin UI routes)
+                .requestMatchers(request -> !request.getRequestURI().startsWith("/api")).permitAll()
+                // All other API endpoints require authentication
                 .anyRequest().authenticated()
             )
             // Configure as OAuth2 Resource Server validating JWTs from auth-service

@@ -7,6 +7,7 @@ import Callback from './pages/Callback';
 import EmployerDashboard from './pages/EmployerDashboard';
 import CandidateDashboard from './pages/CandidateDashboard';
 import PostJob from './pages/PostJob';
+import AdminDashboard from './pages/AdminDashboard';
 import Register from './pages/Register';
 
 // Route guard: requires authentication with a specific role
@@ -53,6 +54,10 @@ function MainApp() {
 
           <Route path="/employer/post" element={
             <RoleRoute role="EMPLOYER"><PostJob /></RoleRoute>
+          } />
+
+          <Route path="/admin" element={
+            <RoleRoute role="ADMIN"><AdminDashboard /></RoleRoute>
           } />
 
           <Route path="*" element={<Navigate to="/" replace />} />

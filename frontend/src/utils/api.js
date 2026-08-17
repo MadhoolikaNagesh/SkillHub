@@ -1,8 +1,21 @@
 import axios from 'axios';
 import { userManager } from '../auth/authConfig';
 
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    // If running from Vite dev server on :5173, point to backend on :8080
+    if (origin.includes(':5173')) {
+      return 'http://localhost:8080';
+    }
+    // In production single-container deployment, serve relative to origin
+    return origin;
+  }
+  return 'http://localhost:8080';
+};
+
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: getBaseUrl(),
   withCredentials: false, // No session cookies — we use Bearer tokens
 });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
-import { Briefcase, LogOut, PlusCircle, User } from 'lucide-react';
+import { Briefcase, LogOut, PlusCircle, User, Shield } from 'lucide-react';
 
 export default function Navbar() {
   const { user, login, logout } = useAuth();
@@ -67,6 +67,20 @@ export default function Navbar() {
                       <span>Post Job</span>
                     </Link>
                   </>
+                )}
+
+                {user.role === 'ADMIN' && (
+                  <Link
+                    to="/admin"
+                    className={`flex items-center space-x-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                      isActive('/admin')
+                        ? 'text-purple-400 bg-purple-500/10 border border-purple-500/20'
+                        : 'text-purple-300 hover:text-purple-200 hover:bg-purple-500/10'
+                    }`}
+                  >
+                    <Shield className="h-4 w-4 text-purple-400" />
+                    <span>Admin Panel</span>
+                  </Link>
                 )}
 
                 <div className="h-6 w-[1px] bg-dark-800" />
