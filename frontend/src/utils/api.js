@@ -24,6 +24,11 @@ const api = axios.create({
  * The token is fetched fresh from the UserManager's session storage.
  */
 api.interceptors.request.use(async (config) => {
+  // Do not attach Authorization header to public endpoints
+  if (config.url && config.url.includes('/public/')) {
+    return config;
+  }
+
   const nativeToken = typeof window !== 'undefined' ? sessionStorage.getItem('skillhub_token') : null;
   if (nativeToken) {
     config.headers['Authorization'] = `Bearer ${nativeToken}`;
@@ -38,13 +43,19 @@ api.interceptors.request.use(async (config) => {
 
 /**
  * If the server returns 401, the token has expired or is invalid.
- * Remove it from storage — the user will be prompted to log in again.
+ * Wipe all local session keys and prompt the user to sign in fresh.
  */
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      await userManager.removeUser();
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('skillhub_token');
+        sessionStorage.removeItem('skillhub_user');
+      }
+      try {
+        await userManager.removeUser();
+      } catch (e) {}
       window.location.href = '/';
     }
     return Promise.reject(error);
