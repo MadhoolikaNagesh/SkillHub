@@ -11,16 +11,6 @@ services:
         fromDatabase:
           name: skillhub-db
           property: connectionString
-      - key: SPRING_DATA_REDIS_HOST
-        fromService:
-          type: redis
-          name: skillhub-redis
-          property: host
-      - key: SPRING_DATA_REDIS_PORT
-        fromService:
-          type: redis
-          name: skillhub-redis
-          property: port
       - key: EUREKA_CLIENT_ENABLED
         value: "false"
 
@@ -37,19 +27,12 @@ services:
           name: skillhub-db
           property: connectionString
       - key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
-        fromService:
-          type: web
-          name: skillhub-auth-service
-          property: url
-          suffix: /oauth2/jwks
+        value: https://skillhub-auth-service.onrender.com/oauth2/jwks
       - key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
-        fromService:
-          type: web
-          name: skillhub-auth-service
-          property: url
+        value: https://skillhub-auth-service.onrender.com
 
 databases:
   - name: skillhub-db
     databaseName: skillhub
-    user: postgres
+    user: skillhub_user
     plan: free
